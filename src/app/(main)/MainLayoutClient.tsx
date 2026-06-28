@@ -69,87 +69,107 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
-      {/* Top header */}
-      <header className="h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 gap-4 shrink-0 z-20 sticky top-0">
-        {/* Mobile sidebar toggle */}
-        <button
-          className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-          onClick={() => setSidebarOpen((v) => !v)}
-          aria-label="メニューを開く"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-
-        {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-yellow-400 shrink-0">
-          FeedHub
-        </Link>
-
-        {/* Unread badge */}
-        {unreadCount > 0 && (
-          <span className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded-full">
-            {unreadCount} 未読
-          </span>
-        )}
-
-        <div className="flex-1" />
-
-        {/* Refresh msg */}
-        {refreshMsg && (
-          <span className="text-sm text-green-600 dark:text-green-400 hidden sm:block">
-            {refreshMsg}
-          </span>
-        )}
-
-        {/* Refresh button */}
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition"
-        >
-          <svg
-            className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      {/* Top header - 2 rows on mobile, 1 row on desktop */}
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shrink-0 z-20 sticky top-0">
+        {/* Row 1: logo / avatar / logout */}
+        <div className="h-12 flex items-center px-3 gap-3">
+          {/* Mobile sidebar toggle */}
+          <button
+            className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0"
+            onClick={() => setSidebarOpen((v) => !v)}
+            aria-label="メニューを開く"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          {refreshing ? "更新中..." : "更新"}
-        </button>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
 
-        {/* User avatar */}
-        <div className="flex items-center gap-2">
-          {user.image ? (
-            <img
-              src={user.image}
-              alt={user.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-              {initials}
-            </div>
+          {/* Logo */}
+          <Link href="/" className="text-xl font-bold text-yellow-400 shrink-0">
+            FeedHub
+          </Link>
+
+          {/* Unread badge - desktop only in row 1 */}
+          {unreadCount > 0 && (
+            <span className="hidden md:inline bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+              {unreadCount} 未読
+            </span>
           )}
-          <span className="hidden sm:block text-sm text-gray-700 dark:text-gray-300 max-w-[120px] truncate">
-            {user.name}
-          </span>
+
+          <div className="flex-1" />
+
+          {/* Refresh msg - desktop only */}
+          {refreshMsg && (
+            <span className="text-sm text-green-600 dark:text-green-400 hidden md:block shrink-0">
+              {refreshMsg}
+            </span>
+          )}
+
+          {/* Refresh button - desktop only in row 1 */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
+          >
+            <svg
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? "更新中..." : "更新"}
+          </button>
+
+          {/* User avatar */}
+          <div className="flex items-center gap-2 shrink-0">
+            {user.image ? (
+              <img src={user.image} alt={user.name} className="w-7 h-7 rounded-full object-cover" />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-yellow-400 text-gray-900 text-xs font-bold flex items-center justify-center">
+                {initials}
+              </div>
+            )}
+            <span className="hidden sm:block text-sm text-gray-700 dark:text-gray-300 max-w-[100px] truncate">
+              {user.name}
+            </span>
+          </div>
+
+          {/* Sign out */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition shrink-0"
+          >
+            ログアウト
+          </button>
         </div>
 
-        {/* Sign out */}
-        <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition"
-        >
-          ログアウト
-        </button>
+        {/* Row 2: unread badge + refresh - mobile only */}
+        <div className="md:hidden flex items-center px-3 pb-2 gap-2">
+          {unreadCount > 0 && (
+            <span className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+              {unreadCount} 未読
+            </span>
+          )}
+          <div className="flex-1" />
+          {refreshMsg && (
+            <span className="text-xs text-green-600 dark:text-green-400 shrink-0">{refreshMsg}</span>
+          )}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
+          >
+            <svg
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? "更新中..." : "更新"}
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
