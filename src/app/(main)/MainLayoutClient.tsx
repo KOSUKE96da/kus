@@ -86,7 +86,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
 
           {/* Logo */}
           <Link href="/" className="text-xl font-bold text-yellow-400 shrink-0">
-            FeedHub
+            KuroFeed
           </Link>
 
           {/* Unread badge - desktop only in row 1 */}

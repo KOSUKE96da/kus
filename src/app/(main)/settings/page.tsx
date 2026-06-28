@@ -139,7 +139,7 @@ export default function SettingsPage() {
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
           <div className="flex items-center justify-between p-4">
             <span className="text-sm text-gray-700 dark:text-gray-300">アプリ名</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">FeedHub</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">KuroFeed</span>
           </div>
           <div className="flex items-center justify-between p-4">
             <span className="text-sm text-gray-700 dark:text-gray-300">バージョン</span>

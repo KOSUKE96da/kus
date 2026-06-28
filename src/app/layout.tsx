@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FeedHub - RSSフィードアグリゲーター",
+  title: "KuroFeed - RSSフィードアグリゲーター",
   description: "お気に入りのRSSフィードを一箇所で管理するアプリ",
 };
 

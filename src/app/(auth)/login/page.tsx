@@ -43,7 +43,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-            FeedHub
+            KuroFeed
           </h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400 text-sm">
             RSSフィードを一箇所で管理
