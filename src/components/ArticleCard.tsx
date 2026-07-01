@@ -202,8 +202,8 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
             className={`
               text-lg leading-none transition
               ${isFavorite
-                ? "text-yellow-400 hover:text-yellow-500"
-                : "text-gray-300 dark:text-gray-600 hover:text-yellow-400"
+                ? "text-red-500 hover:text-red-600"
+                : "text-gray-300 dark:text-gray-600 hover:text-red-400"
               }
             `}
             aria-label={isFavorite ? "お気に入りを解除" : "お気に入りに追加"}

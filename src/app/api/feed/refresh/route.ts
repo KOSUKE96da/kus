@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Parser from "rss-parser";
 
-const MAX_ITEMS_PER_SITE = 50;
+const MAX_ITEMS_PER_SITE = 100;
 
 const parser = new Parser({
   customFields: {
