@@ -102,9 +102,11 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
       className={`
         group relative flex flex-col rounded-xl overflow-hidden cursor-pointer
         transition-all duration-200
-        ${isRead
-          ? "bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 hover:shadow-sm opacity-70 hover:opacity-90"
-          : "bg-white dark:bg-gray-900 border-l-[3px] border-r-[3px] border-l-yellow-400 border-r-yellow-400 dark:border-l-yellow-400 dark:border-r-yellow-400 border-t border-b border-t-gray-200 border-b-gray-200 dark:border-t-gray-700 dark:border-b-gray-700 hover:shadow-lg"
+        ${isFavorite
+          ? "bg-white dark:bg-gray-900 border-l-[5px] border-r-[5px] border-l-red-500 border-r-red-500 border-t border-b border-t-gray-200 border-b-gray-200 dark:border-t-gray-700 dark:border-b-gray-700 hover:shadow-lg"
+          : isRead
+            ? "bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 hover:shadow-sm opacity-70 hover:opacity-90"
+            : "bg-white dark:bg-gray-900 border-l-[3px] border-r-[3px] border-l-yellow-400 border-r-yellow-400 border-t border-b border-t-gray-200 border-b-gray-200 dark:border-t-gray-700 dark:border-b-gray-700 hover:shadow-lg"
         }
       `}
       onClick={handleCardClick}
@@ -121,7 +123,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
             src={article.thumbnailUrl}
             alt=""
             className={`w-full h-full object-cover transition-all duration-300
-              ${isRead ? "grayscale-[40%] brightness-90" : "group-hover:scale-105"}
+              ${isRead && !isFavorite ? "grayscale-[40%] brightness-90" : "group-hover:scale-105"}
             `}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";
@@ -172,7 +174,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
         <h3
           className={`
             text-sm leading-snug mb-2 line-clamp-2
-            ${isRead
+            ${isRead && !isFavorite
               ? "font-normal text-gray-400 dark:text-gray-500"
               : "font-bold text-gray-900 dark:text-gray-50"
             }
@@ -183,7 +185,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
 
         {/* Excerpt */}
         {article.excerpt && (
-          <p className={`text-xs line-clamp-2 flex-1 ${isRead ? "text-gray-400 dark:text-gray-600" : "text-gray-500 dark:text-gray-400"}`}>
+          <p className={`text-xs line-clamp-2 flex-1 ${isRead && !isFavorite ? "text-gray-400 dark:text-gray-600" : "text-gray-500 dark:text-gray-400"}`}>
             {article.excerpt}
           </p>
         )}
