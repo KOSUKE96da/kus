@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KuroFeed - RSSフィードアグリゲーター",
   description: "お気に入りのRSSフィードを一箇所で管理するアプリ",
+  themeColor: "#FACC15",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "KuroFeed",
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +39,11 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}})()`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')})}`,
           }}
         />
         <SessionProvider>{children}</SessionProvider>
