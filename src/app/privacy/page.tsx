@@ -39,7 +39,10 @@ export default function PrivacyPage() {
       <section className="mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">5. データの削除</h2>
         <p className="text-gray-700 text-sm leading-relaxed">
-          アカウントの削除をご希望の場合は、下記のメールアドレスにご連絡ください。
+          アプリの設定画面（設定 → アカウント削除）から、いつでもご自身のアカウントを削除できます。
+          アカウントを削除すると、登録サイト・記事・既読状態・お気に入りを含むすべてのデータが即座に完全削除されます。
+          この操作は取り消せません。<br /><br />
+          メールによる削除依頼をご希望の場合は、下記のメールアドレスにご連絡ください。
           速やかにすべてのデータを削除いたします。
         </p>
       </section>
