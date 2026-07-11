@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Theme = "light" | "dark" | "system";
 
@@ -28,7 +29,10 @@ function applyTheme(theme: Theme) {
 
 export default function SettingsPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [theme, setTheme] = useState<Theme>("system");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const stored = getStoredTheme();
@@ -47,6 +51,19 @@ export default function SettingsPage() {
     { key: "dark", label: "ダーク", icon: "🌙" },
     { key: "system", label: "システム", icon: "💻" },
   ];
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/auth/delete-account", { method: "DELETE" });
+      if (res.ok) {
+        await signOut({ callbackUrl: "/login" });
+      }
+    } catch {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  }
 
   const user = session?.user;
 
@@ -128,6 +145,47 @@ export default function SettingsPage() {
           <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
             テーマの設定はブラウザのローカルストレージに保存されます
           </p>
+        </div>
+      </section>
+
+      {/* Danger zone */}
+      <section className="mb-8">
+        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+          アカウント削除
+        </h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-red-200 dark:border-red-900 p-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            アカウントを削除すると、すべてのデータ（登録サイト・記事・既読状態・お気に入り）が完全に削除されます。この操作は取り消せません。
+          </p>
+          {!showDeleteConfirm ? (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition"
+            >
+              アカウントを削除する
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                本当に削除しますか？この操作は取り消せません。
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-medium rounded-lg transition"
+                >
+                  {deleting ? "削除中..." : "はい、削除します"}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                >
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
