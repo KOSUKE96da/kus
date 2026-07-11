@@ -48,7 +48,7 @@ export default function PrivacyPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-2">6. お問い合わせ</h2>
         <p className="text-gray-700 text-sm leading-relaxed">
           プライバシーに関するご質問は以下までご連絡ください。<br />
-          メール：denden.mushi.500ml@gmail.com
+          メール：fly.number787@gmail.com
         </p>
       </section>
     </div>
