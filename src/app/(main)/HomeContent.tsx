@@ -54,8 +54,8 @@ export default function HomeContent() {
   ];
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+    <div className="max-w-7xl mx-auto">
+      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-200 dark:border-gray-800">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           ホーム
           {unreadCount > 0 && (
@@ -91,6 +91,7 @@ export default function HomeContent() {
         </div>
       </div>
 
+      <div className="px-4 md:px-6 py-4">
       {loading ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -122,6 +123,7 @@ export default function HomeContent() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
