@@ -74,7 +74,7 @@ export default function HomeContent({ initialArticles }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
+      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           ホーム
           {unreadCount > 0 && (

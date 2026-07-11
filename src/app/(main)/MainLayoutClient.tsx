@@ -184,7 +184,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
         {/* Sidebar */}
         <aside
           className={`
-            fixed md:sticky md:top-0 inset-y-0 left-0 z-20 w-56 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800
+            fixed md:sticky md:top-0 inset-y-0 left-0 z-30 w-56 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800
             flex flex-col pt-14 md:pt-0 md:h-full transition-transform duration-200 shrink-0
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           `}
