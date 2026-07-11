@@ -113,7 +113,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
     >
       {/* Unread indicator dot */}
       {!isRead && (
-        <span className="absolute top-2.5 right-2.5 z-10 w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-sm" />
+        <span className="absolute top-2.5 right-2.5 z-[1] w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-sm" />
       )}
 
       {/* Thumbnail */}
