@@ -55,7 +55,7 @@ export default function HomeContent() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3 border-b border-gray-200 dark:border-gray-800">
+      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           ホーム
           {unreadCount > 0 && (
