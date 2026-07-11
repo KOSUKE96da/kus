@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import MainLayoutClient from "./(main)/MainLayoutClient";
 import HomeContent from "./(main)/HomeContent";
+import { getArticles, getUnreadCount } from "@/lib/getArticles";
 
 export default async function RootPage() {
   const session = await getServerSession(authOptions);
@@ -14,22 +14,11 @@ export default async function RootPage() {
 
   const userId = (session.user as any).id as string;
 
-  const userSites = await prisma.site.findMany({
-    where: { userId },
-    select: { id: true },
-  });
-  const userSiteIds = userSites.map((s) => s.id);
-
-  let unreadCount = 0;
-  if (userSiteIds.length > 0) {
-    const totalArticles = await prisma.article.count({
-      where: { siteId: { in: userSiteIds } },
-    });
-    const readArticles = await prisma.readStatus.count({
-      where: { userId, isRead: true, article: { siteId: { in: userSiteIds } } },
-    });
-    unreadCount = totalArticles - readArticles;
-  }
+  // Fetch unread count and initial articles in parallel
+  const [unreadCount, initialArticles] = await Promise.all([
+    getUnreadCount(userId),
+    getArticles(userId, "all", "desc"),
+  ]);
 
   return (
     <MainLayoutClient
@@ -40,7 +29,7 @@ export default async function RootPage() {
       }}
       unreadCount={unreadCount}
     >
-      <HomeContent />
+      <HomeContent initialArticles={initialArticles} />
     </MainLayoutClient>
   );
 }

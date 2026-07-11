@@ -6,11 +6,15 @@ import ArticleCard, { ArticleData } from "@/components/ArticleCard";
 type Filter = "all" | "unread" | "read" | "favorites";
 type Sort = "desc" | "asc";
 
-export default function HomeContent() {
-  const [articles, setArticles] = useState<ArticleData[]>([]);
+interface Props {
+  initialArticles?: ArticleData[];
+}
+
+export default function HomeContent({ initialArticles }: Props) {
+  const [allArticles, setAllArticles] = useState<ArticleData[]>(initialArticles ?? []);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("desc");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -19,7 +23,7 @@ export default function HomeContent() {
       const res = await fetch(`/api/articles?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setArticles(data);
+        setAllArticles(data);
       }
     } catch {
       // ignore
@@ -28,23 +32,38 @@ export default function HomeContent() {
     }
   }, [filter, sort]);
 
+  // Only fetch from API when filter/sort changes (not on initial mount)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    if (!mounted) { setMounted(true); return; }
     fetchArticles();
-  }, [fetchArticles]);
+  }, [filter, sort]);
 
   function handleReadChange(id: string, isRead: boolean) {
-    setArticles((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, isRead } : a))
-    );
+    setAllArticles((prev) => prev.map((a) => (a.id === id ? { ...a, isRead } : a)));
   }
 
   function handleFavoriteChange(id: string, isFavorite: boolean) {
-    setArticles((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, isFavorite } : a))
-    );
+    setAllArticles((prev) => prev.map((a) => (a.id === id ? { ...a, isFavorite } : a)));
   }
 
-  const unreadCount = articles.filter((a) => !a.isRead).length;
+  // Apply filter/sort client-side on initial data; server handles it on re-fetch
+  const articles = mounted
+    ? allArticles
+    : allArticles
+        .filter((a) => {
+          if (filter === "read") return a.isRead;
+          if (filter === "unread") return !a.isRead;
+          if (filter === "favorites") return a.isFavorite;
+          return true;
+        })
+        .sort((a, b) =>
+          sort === "asc"
+            ? new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
+            : new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        );
+
+  const unreadCount = allArticles.filter((a) => !a.isRead).length;
 
   const filterButtons: { key: Filter; label: string }[] = [
     { key: "all", label: "すべて" },
@@ -92,37 +111,34 @@ export default function HomeContent() {
       </div>
 
       <div className="px-4 md:px-6 py-4">
-      {loading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-56 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse"
-            />
-          ))}
-        </div>
-      ) : articles.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
-          <div className="text-5xl mb-4">📰</div>
-          <p className="text-lg font-medium mb-2">記事がありません</p>
-          <p className="text-sm">
-            {filter !== "all"
-              ? "フィルターを変更してみてください"
-              : "サイトを追加して「更新」ボタンを押してください"}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {articles.map((article) => (
-            <ArticleCard
-              key={article.id}
-              article={article}
-              onReadChange={handleReadChange}
-              onFavoriteChange={handleFavoriteChange}
-            />
-          ))}
-        </div>
-      )}
+        {loading ? (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-56 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
+            <div className="text-5xl mb-4">📰</div>
+            <p className="text-lg font-medium mb-2">記事がありません</p>
+            <p className="text-sm">
+              {filter !== "all"
+                ? "フィルターを変更してみてください"
+                : "サイトを追加して「更新」ボタンを押してください"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {articles.map((article) => (
+              <ArticleCard
+                key={article.id}
+                article={article}
+                onReadChange={handleReadChange}
+                onFavoriteChange={handleFavoriteChange}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
