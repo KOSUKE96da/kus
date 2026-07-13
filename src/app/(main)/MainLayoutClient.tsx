@@ -109,8 +109,8 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
             </span>
           )}
 
-          {/* Refresh button - desktop only in row 1 */}
-          <button
+          {/* Refresh button - desktop only in row 1, home only */}
+          {pathname === "/" && <button
             onClick={handleRefresh}
             disabled={refreshing}
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
@@ -123,7 +123,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             {refreshing ? "更新中..." : "更新"}
-          </button>
+          </button>}
 
           {/* User avatar */}
           <div className="flex items-center gap-2 shrink-0">
@@ -148,7 +148,8 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
           </button>
         </div>
 
-        {/* Row 2: unread badge + refresh - mobile only */}
+        {/* Row 2: unread badge + refresh - mobile only, home only */}
+        {(pathname === "/" || unreadCount > 0) && (
         <div className="md:hidden flex items-center px-3 pb-2 gap-2">
           {unreadCount > 0 && (
             <span className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
@@ -159,7 +160,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
           {refreshMsg && (
             <span className="text-xs text-green-600 dark:text-green-400 shrink-0">{refreshMsg}</span>
           )}
-          <button
+          {pathname === "/" && <button
             onClick={handleRefresh}
             disabled={refreshing}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
@@ -172,8 +173,9 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             {refreshing ? "更新中..." : "更新"}
-          </button>
+          </button>}
         </div>
+        )}
       </header>
 
       <div className="flex flex-1 overflow-hidden">
