@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, FormEvent } from "react";
+import { useState, FormEvent } from "react";
 
 interface Site {
   id: string;
@@ -20,13 +20,12 @@ interface Props {
 
 export default function SitesContent({ initialSites }: Props) {
   const [sites, setSites] = useState<Site[]>(initialSites);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
   const [formName, setFormName] = useState("");
   const [formSiteUrl, setFormSiteUrl] = useState("");
   const [formFeedUrl, setFormFeedUrl] = useState("");
@@ -78,12 +77,12 @@ export default function SitesContent({ initialSites }: Props) {
       if (res.ok && data.feedUrl) {
         setFormFeedUrl(data.feedUrl);
         if (!formName && data.title) setFormName(data.title);
-        setDetectMsg("RSS???????????");
+        setDetectMsg("RSSフィードを検出しました");
       } else {
-        setDetectMsg(data.error || "???????????????");
+        setDetectMsg(data.error || "フィードが見つかりませんでした");
       }
     } catch {
-      setDetectMsg("?????????");
+      setDetectMsg("検出に失敗しました");
     } finally {
       setDetecting(false);
     }
@@ -93,47 +92,50 @@ export default function SitesContent({ initialSites }: Props) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
     try {
       if (editingId) {
         const res = await fetch(`/api/sites/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formName,
-            feedUrl: formFeedUrl,
-            category: formCategory || null,
-          }),
+          body: JSON.stringify({ name: formName, feedUrl: formFeedUrl, category: formCategory || null }),
         });
-        if (!res.ok) throw new Error("?????????");
+        if (!res.ok) throw new Error("更新に失敗しました");
         const updated: Site = await res.json();
         setSites((prev) => prev.map((s) => (s.id === editingId ? updated : s)));
       } else {
         const res = await fetch("/api/sites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formName,
-            feedUrl: formFeedUrl,
-            category: formCategory || null,
-          }),
+          body: JSON.stringify({ name: formName, feedUrl: formFeedUrl, category: formCategory || null }),
         });
-        if (!res.ok) throw new Error("?????????");
+        if (!res.ok) throw new Error("追加に失敗しました");
         const created: Site = await res.json();
         setSites((prev) => [created, ...prev]);
       }
       closeForm();
     } catch (err: any) {
-      setError(err.message || "??????????");
+      setError(err.message || "エラーが発生しました");
     } finally {
       setSubmitting(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("??????????????????????????????")) return;
+    if (!confirm("このサイトを削除しますか？関連する記事もすべて削除されます。")) return;
     try {
-      await fetch(`/api/sites/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/sites/${id}`, { method: "DELETE" });
+      if (res.status === 409) {
+        const data = await res.json();
+        if (data.error === "HAS_FAVORITES") {
+          const ok = confirm(
+            `このサイトには★お気に入り記事が ${data.favoriteCount} 件あります。\n削除するとお気に入りも失われます。それでも削除しますか？`
+          );
+          if (!ok) return;
+          await fetch(`/api/sites/${id}?force=true`, { method: "DELETE" });
+          setSites((prev) => prev.filter((s) => s.id !== id));
+        }
+        return;
+      }
       setSites((prev) => prev.filter((s) => s.id !== id));
     } catch {
       // ignore
@@ -158,28 +160,26 @@ export default function SitesContent({ initialSites }: Props) {
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          ?????
+          サイト管理
           <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-            ({sites.length} ?)
+            ({sites.length} 件)
           </span>
         </h1>
         <button
           onClick={openAddForm}
           className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-medium rounded-lg transition"
         >
-          <span>+</span> ??????
+          <span>+</span> サイトを追加
         </button>
       </div>
 
-      {/* Add/Edit form modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
           <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              {editingId ? "??????" : "??????"}
+              {editingId ? "サイトを編集" : "サイトを追加"}
             </h2>
 
             {error && (
@@ -191,7 +191,7 @@ export default function SitesContent({ initialSites }: Props) {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  ???URL
+                  サイトURL
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -207,11 +207,11 @@ export default function SitesContent({ initialSites }: Props) {
                     disabled={detecting || (!formSiteUrl && !formFeedUrl)}
                     className="shrink-0 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-700 transition"
                   >
-                    {detecting ? "???..." : "RSS??"}
+                    {detecting ? "検出中..." : "RSS検出"}
                   </button>
                 </div>
                 {detectMsg && (
-                  <p className={`text-xs mt-1 ${detectMsg.includes("??????") ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
+                  <p className={`text-xs mt-1 ${detectMsg.includes("検出しました") ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
                     {detectMsg}
                   </p>
                 )}
@@ -219,7 +219,7 @@ export default function SitesContent({ initialSites }: Props) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  ???? <span className="text-red-500">*</span>
+                  サイト名 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -227,13 +227,13 @@ export default function SitesContent({ initialSites }: Props) {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
-                  placeholder="?: TechCrunch Japan"
+                  placeholder="例: TechCrunch Japan"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  ????URL <span className="text-red-500">*</span>
+                  フィードURL <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="url"
@@ -247,14 +247,14 @@ export default function SitesContent({ initialSites }: Props) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  ????
+                  カテゴリ
                 </label>
                 <input
                   type="text"
                   value={formCategory}
                   onChange={(e) => setFormCategory(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
-                  placeholder="?: ??????"
+                  placeholder="例: テクノロジー"
                 />
               </div>
 
@@ -264,14 +264,14 @@ export default function SitesContent({ initialSites }: Props) {
                   disabled={submitting}
                   className="flex-1 py-2.5 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition"
                 >
-                  {submitting ? "???..." : editingId ? "??" : "??"}
+                  {submitting ? "保存中..." : editingId ? "更新" : "追加"}
                 </button>
                 <button
                   type="button"
                   onClick={closeForm}
                   className="flex-1 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-medium rounded-lg transition"
                 >
-                  ?????
+                  キャンセル
                 </button>
               </div>
             </form>
@@ -279,7 +279,6 @@ export default function SitesContent({ initialSites }: Props) {
         </div>
       )}
 
-      {/* Site list */}
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -288,9 +287,9 @@ export default function SitesContent({ initialSites }: Props) {
         </div>
       ) : sites.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
-          <div className="text-5xl mb-4">??</div>
-          <p className="text-lg font-medium mb-2">?????????????</p>
-          <p className="text-sm">?????????????RSS?????????????</p>
+          <div className="text-5xl mb-4">📡</div>
+          <p className="text-lg font-medium mb-2">サイトが登録されていません</p>
+          <p className="text-sm">「サイトを追加」ボタンからRSSフィードを登録してください</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -298,9 +297,7 @@ export default function SitesContent({ initialSites }: Props) {
             <div
               key={site.id}
               className={`flex items-center gap-3 p-4 bg-white dark:bg-gray-900 rounded-xl border ${
-                site.isActive
-                  ? "border-gray-200 dark:border-gray-800"
-                  : "border-gray-100 dark:border-gray-900 opacity-60"
+                site.isActive ? "border-gray-200 dark:border-gray-800" : "border-gray-100 dark:border-gray-900 opacity-60"
               }`}
             >
               <div className={`w-2 h-2 rounded-full shrink-0 ${site.isActive ? "bg-green-500" : "bg-gray-400"}`} />
@@ -313,7 +310,9 @@ export default function SitesContent({ initialSites }: Props) {
                 </div>
                 <p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5">{site.feedUrl}</p>
                 {site.lastFetched && (
-                  <p className="text-xs text-gray-400 dark:text-gray-600 mt-0.5">????: {new Date(site.lastFetched).toLocaleString("ja-JP")}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-600 mt-0.5">
+                    最終更新: {new Date(site.lastFetched).toLocaleString("ja-JP")}
+                  </p>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -325,19 +324,19 @@ export default function SitesContent({ initialSites }: Props) {
                       : "border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}
                 >
-                  {site.isActive ? "??" : "??"}
+                  {site.isActive ? "有効" : "無効"}
                 </button>
                 <button
                   onClick={() => openEditForm(site)}
                   className="text-xs px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                 >
-                  ??
+                  編集
                 </button>
                 <button
                   onClick={() => handleDelete(site.id)}
                   className="text-xs px-2.5 py-1 rounded-lg border border-red-200 dark:border-red-900 text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition"
                 >
-                  ??
+                  削除
                 </button>
               </div>
             </div>
