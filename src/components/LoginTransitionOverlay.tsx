@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 export default function LoginTransitionOverlay() {
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!sessionStorage.getItem("kf_login_pending")) return;
     setShow(true);
 
