@@ -77,9 +77,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
       }
-      // update() でアバター更新を通知（フラグのみ、画像データは持たない）
+      // update() でアバターバージョンをインクリメント（URL変化でキャッシュ無効化）
       if (trigger === "update" && session?.avatarUpdated) {
-        token.avatarUpdated = Date.now();
+        token.avatarVersion = ((token.avatarVersion as number) ?? 0) + 1;
       }
       return token;
     },
@@ -92,8 +92,9 @@ export const authOptions: NextAuthOptions = {
           where: { id: userId },
           select: { image: true },
         });
+        const v = (token.avatarVersion as number) ?? 0;
         session.user.image = user?.image
-          ? `/api/user/avatar/${userId}`
+          ? `/api/user/avatar/${userId}?v=${v}`
           : null;
       }
       return session;
