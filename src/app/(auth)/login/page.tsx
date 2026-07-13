@@ -21,8 +21,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
-    // React の再レンダリングとブラウザの描画を待つ
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     try {
@@ -45,111 +43,117 @@ export default function LoginPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "16px",
+        backgroundColor: "#030712",
+      }}>
+        <style>{`@keyframes kf-spin{to{transform:rotate(360deg)}}`}</style>
+        <div style={{
+          width: "48px",
+          height: "48px",
+          border: "4px solid #facc15",
+          borderTopColor: "transparent",
+          borderRadius: "50%",
+          animation: "kf-spin 0.8s linear infinite",
+        }} />
+        <p style={{ color: "#9ca3af", fontSize: "14px", margin: 0 }}>ログイン中...</p>
+      </div>
+    );
+  }
+
   return (
-    <>
-      {loading && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 gap-4">
-          <svg
-            className="w-12 h-12 text-yellow-400 animate-spin"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">ログイン中...</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-yellow-400">KuroFeed</h1>
+          <p className="mt-2 text-gray-500 dark:text-gray-400 text-sm">
+            RSSフィードを一箇所で管理
+          </p>
         </div>
-      )}
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-yellow-400">KuroFeed</h1>
-            <p className="mt-2 text-gray-500 dark:text-gray-400 text-sm">
-              RSSフィードを一箇所で管理
-            </p>
-          </div>
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-800">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+            ログイン
+          </h2>
 
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-800">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                メールアドレス
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                パスワード
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 px-4 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed text-blue-900 font-medium rounded-lg transition focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+            >
               ログイン
-            </h2>
+            </button>
+          </form>
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  メールアドレス
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
-                  placeholder="you@example.com"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >
-                  パスワード
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-2.5 px-4 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed text-blue-900 font-medium rounded-lg transition focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
-              >
-                {loading ? "ログイン中..." : "ログイン"}
-              </button>
-            </form>
-
-            <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-              アカウントをお持ちでない方は{" "}
-              <Link
-                href="/register"
-                className="text-yellow-500 dark:text-yellow-400 hover:underline font-medium"
-              >
-                新規登録
-              </Link>
-            </p>
-          </div>
-
-          <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-600">
-            <Link href="/" className="hover:underline">
-              トップページへ
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+            アカウントをお持ちでない方は{" "}
+            <Link
+              href="/register"
+              className="text-yellow-500 dark:text-yellow-400 hover:underline font-medium"
+            >
+              新規登録
             </Link>
           </p>
         </div>
+
+        <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-600">
+          <Link href="/" className="hover:underline">
+            トップページへ
+          </Link>
+        </p>
       </div>
-    </>
+    </div>
   );
 }
