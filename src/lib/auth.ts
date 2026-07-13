@@ -9,6 +9,18 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  // Cookie名を変更して古い大きなJWT Cookieを無効化
+  cookies: {
+    sessionToken: {
+      name: "kf-session-v2",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   pages: {
     signIn: "/login",
   },
