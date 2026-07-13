@@ -98,7 +98,7 @@ export default function HomeContent() {
               <button
                 key={btn.key}
                 onClick={() => setFilter(btn.key)}
-                className={`flex-1 px-3 py-1.5 text-sm transition ${
+                className={`flex-1 px-3 py-1.5 text-sm transition whitespace-nowrap ${
                   filter === btn.key
                     ? "bg-yellow-400 text-gray-900 font-medium"
                     : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
