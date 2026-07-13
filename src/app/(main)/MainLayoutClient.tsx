@@ -34,6 +34,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
   async function handleRefresh() {
     setRefreshing(true);
     setRefreshMsg(null);
+    window.dispatchEvent(new CustomEvent("feedRefreshStart"));
     try {
       const res = await fetch("/api/feed/refresh", { method: "POST" });
       const data = await res.json();

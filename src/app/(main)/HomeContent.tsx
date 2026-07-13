@@ -46,9 +46,14 @@ export default function HomeContent({ initialArticles }: Props) {
 
   // feedRefreshed イベントで記事を再取得
   useEffect(() => {
-    const handler = () => fetchArticles();
-    window.addEventListener("feedRefreshed", handler);
-    return () => window.removeEventListener("feedRefreshed", handler);
+    const onStart = () => setLoading(true);
+    const onDone = () => fetchArticles();
+    window.addEventListener("feedRefreshStart", onStart);
+    window.addEventListener("feedRefreshed", onDone);
+    return () => {
+      window.removeEventListener("feedRefreshStart", onStart);
+      window.removeEventListener("feedRefreshed", onDone);
+    };
   }, [fetchArticles]);
 
   function handleReadChange(id: string, isRead: boolean) {
