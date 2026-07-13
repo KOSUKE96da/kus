@@ -29,10 +29,12 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarCacheBust, setAvatarCacheBust] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = session?.user;
   const initials = (user?.name || user?.email || "U")[0].toUpperCase();
+  const avatarUrl = user?.image ? `${user.image}?v=${avatarCacheBust}` : null;
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -47,7 +49,8 @@ export default function SettingsPage() {
         body: JSON.stringify({ image }),
       });
       if (!res.ok) throw new Error("upload failed");
-      await update({ image });
+      setAvatarCacheBust(Date.now());
+      await update({ avatarUpdated: true });
     } catch {
       setAvatarError("アップロードに失敗しました");
     } finally {
@@ -60,7 +63,7 @@ export default function SettingsPage() {
     setUploading(true);
     try {
       await fetch("/api/user/avatar", { method: "DELETE" });
-      await update({ image: null });
+      await update({ avatarUpdated: true });
     } catch {
       setAvatarError("削除に失敗しました");
     } finally {
@@ -92,10 +95,10 @@ export default function SettingsPage() {
           {/* Avatar + user info */}
           <div className="flex items-center gap-4 p-4">
             <div className="relative shrink-0">
-              {user?.image ? (
+              {avatarUrl ? (
                 <img
-                  src={user.image}
-                  alt={user.name || ""}
+                  src={avatarUrl}
+                  alt={user?.name || ""}
                   className="w-16 h-16 rounded-full object-cover"
                 />
               ) : (
@@ -129,7 +132,7 @@ export default function SettingsPage() {
                 >
                   画像を変更
                 </button>
-                {user?.image && (
+                {avatarUrl && (
                   <button
                     onClick={handleAvatarRemove}
                     disabled={uploading}

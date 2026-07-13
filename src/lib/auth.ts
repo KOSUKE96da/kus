@@ -64,18 +64,25 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.image = user.image ?? null;
       }
-      // update() 呼び出し時にトークンへ反映
-      if (trigger === "update" && session?.image !== undefined) {
-        token.image = session.image;
+      // update() でアバター更新を通知（フラグのみ、画像データは持たない）
+      if (trigger === "update" && session?.avatarUpdated) {
+        token.avatarUpdated = Date.now();
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        (session.user as any).id = token.id as string;
-        session.user.image = (token.image as string | null) ?? null;
+        const userId = token.id as string;
+        (session.user as any).id = userId;
+        // 画像はAPIルート経由で配信（Cookieを小さく保つ）
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { image: true },
+        });
+        session.user.image = user?.image
+          ? `/api/user/avatar/${userId}`
+          : null;
       }
       return session;
     },
