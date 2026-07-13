@@ -25,6 +25,8 @@ export default function HomeContent() {
       // ignore
     } finally {
       setLoading(false);
+      // ログイン遷移スピナーを消す
+      window.dispatchEvent(new CustomEvent("kf_home_ready"));
     }
   }, [filter, sort]);
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import LoginTransitionOverlay from "@/components/LoginTransitionOverlay";
 
 interface Props {
   children: React.ReactNode;
@@ -73,6 +74,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+      <LoginTransitionOverlay />
       {/* Top header - 2 rows on mobile, 1 row on desktop */}
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shrink-0 z-20 sticky top-0">
         {/* Row 1: logo / avatar / logout */}
