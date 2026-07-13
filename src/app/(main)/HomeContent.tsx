@@ -11,6 +11,7 @@ export default function HomeContent() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("desc");
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -25,25 +26,21 @@ export default function HomeContent() {
       // ignore
     } finally {
       setLoading(false);
-      // ログイン遷移スピナーを消す
       window.dispatchEvent(new CustomEvent("kf_home_ready"));
     }
   }, [filter, sort]);
 
-  // マウント直後に記事を取得
   useEffect(() => {
     fetchArticles();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // フィルター・ソート変更時に再取得
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     if (!mounted) { setMounted(true); return; }
     fetchArticles();
   }, [filter, sort]);
 
-  // feedRefreshed イベントで記事を再取得
   useEffect(() => {
     const onStart = () => setLoading(true);
     const onDone = () => fetchArticles();
@@ -65,6 +62,15 @@ export default function HomeContent() {
 
   const unreadCount = allArticles.filter((a) => !a.isRead).length;
 
+  const q = search.trim().toLowerCase();
+  const displayedArticles = q
+    ? allArticles.filter(
+        (a) =>
+          a.title.toLowerCase().includes(q) ||
+          (a.siteName ?? "").toLowerCase().includes(q)
+      )
+    : allArticles;
+
   const filterButtons: { key: Filter; label: string }[] = [
     { key: "all", label: "すべて" },
     { key: "unread", label: "未読" },
@@ -74,39 +80,63 @@ export default function HomeContent() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          ホーム
-          {unreadCount > 0 && (
-            <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-              ({unreadCount} 未読)
-            </span>
-          )}
-        </h1>
+      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            ホーム
+            {unreadCount > 0 && (
+              <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                ({unreadCount} 未読)
+              </span>
+            )}
+          </h1>
 
-        <div className="flex items-center gap-2 ml-auto flex-wrap">
-          <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            {filterButtons.map((btn) => (
-              <button
-                key={btn.key}
-                onClick={() => setFilter(btn.key)}
-                className={`px-3 py-1.5 text-sm transition ${
-                  filter === btn.key
-                    ? "bg-yellow-400 text-gray-900 font-medium"
-                    : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
-                }`}
-              >
-                {btn.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 ml-auto flex-wrap">
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+              {filterButtons.map((btn) => (
+                <button
+                  key={btn.key}
+                  onClick={() => setFilter(btn.key)}
+                  className={`px-3 py-1.5 text-sm transition ${
+                    filter === btn.key
+                      ? "bg-yellow-400 text-gray-900 font-medium"
+                      : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+            >
+              {sort === "desc" ? "▼ 新しい順" : "▲ 古い順"}
+            </button>
           </div>
+        </div>
 
-          <button
-            onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-          >
-            {sort === "desc" ? "▼ 新しい順" : "▲ 古い順"}
-          </button>
+        {/* 検索バー */}
+        <div className="relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="記事を検索..."
+            className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
@@ -120,20 +150,22 @@ export default function HomeContent() {
             <p className="text-sm text-yellow-400">記事を読み込んでいます...</p>
           </div>
         )}
-        {!loading && allArticles.length === 0 && (
+        {!loading && displayedArticles.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
             <div className="text-5xl mb-4">📰</div>
             <p className="text-lg font-medium mb-2">記事がありません</p>
             <p className="text-sm">
-              {filter !== "all"
+              {q
+                ? "検索キーワードを変えてみてください"
+                : filter !== "all"
                 ? "フィルターを変更してみてください"
                 : "サイトを追加して「記事を更新」ボタンを押してください"}
             </p>
           </div>
         )}
-        {!loading && allArticles.length > 0 && (
+        {!loading && displayedArticles.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {allArticles.map((article) => (
+            {displayedArticles.map((article) => (
               <ArticleCard
                 key={article.id}
                 article={article}
