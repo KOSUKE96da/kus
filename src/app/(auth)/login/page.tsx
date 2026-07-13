@@ -13,9 +13,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigating = useRef(false);
 
-  // ログインページ表示時にホーム画面をプリフェッチして遷移を高速化
   useEffect(() => {
+    // ホーム画面をプリフェッチして遷移を高速化
     router.prefetch("/");
+    // auth サーバーレス関数をプリウォームしてコールドスタートを回避
+    fetch("/api/auth/session").catch(() => {});
   }, [router]);
 
   async function handleSubmit(e: FormEvent) {

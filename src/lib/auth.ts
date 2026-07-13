@@ -41,6 +41,16 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // 古い高ラウンドハッシュを10ラウンドに更新して次回ログインを高速化
+        const rounds = parseInt(user.passwordHash.split("$")[2] ?? "10", 10);
+        if (rounds > 10) {
+          const newHash = await bcrypt.hash(credentials.password, 10);
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { passwordHash: newHash },
+          });
+        }
+
         return {
           id: user.id,
           email: user.email,
