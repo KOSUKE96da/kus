@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 interface Props {
@@ -25,6 +25,7 @@ const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export default function MainLayoutClient({ children, user, unreadCount }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [refreshMsg, setRefreshMsg] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,10 +37,12 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
     try {
       const res = await fetch("/api/feed/refresh", { method: "POST" });
       const data = await res.json();
-      // Also backfill thumbnails for existing articles that have none
-      await fetch("/api/feed/fetch-thumbnails", { method: "POST" });
+      // Fire-and-forget thumbnail backfill (non-blocking)
+      fetch("/api/feed/fetch-thumbnails", { method: "POST" }).catch(() => {});
       setRefreshMsg(`${data.newArticles} 件の新着記事を取得しました`);
       setTimeout(() => setRefreshMsg(null), 4000);
+      // HomeContent に記事再取得を通知
+      window.dispatchEvent(new CustomEvent("feedRefreshed"));
     } catch {
       setRefreshMsg("更新に失敗しました");
       setTimeout(() => setRefreshMsg(null), 4000);
@@ -199,6 +202,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={true}
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition
