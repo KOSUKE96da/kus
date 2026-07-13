@@ -6,20 +6,11 @@ import ArticleCard, { ArticleData } from "@/components/ArticleCard";
 type Filter = "all" | "unread" | "read" | "favorites";
 type Sort = "desc" | "asc";
 
-interface Props {
-  initialArticles?: ArticleData[];
-}
-
-export default function HomeContent({ initialArticles }: Props) {
-  const [allArticles, setAllArticles] = useState<ArticleData[]>(initialArticles ?? []);
+export default function HomeContent() {
+  const [allArticles, setAllArticles] = useState<ArticleData[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("desc");
-  const [loading, setLoading] = useState(false);
-
-  // router.refresh() でサーバーから新しい initialArticles が来たら反映する
-  useEffect(() => {
-    if (initialArticles) setAllArticles(initialArticles);
-  }, [initialArticles]);
+  const [loading, setLoading] = useState(true);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -37,7 +28,13 @@ export default function HomeContent({ initialArticles }: Props) {
     }
   }, [filter, sort]);
 
-  // Only fetch from API when filter/sort changes (not on initial mount)
+  // マウント直後に記事を取得
+  useEffect(() => {
+    fetchArticles();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // フィルター・ソート変更時に再取得
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     if (!mounted) { setMounted(true); return; }
@@ -63,22 +60,6 @@ export default function HomeContent({ initialArticles }: Props) {
   function handleFavoriteChange(id: string, isFavorite: boolean) {
     setAllArticles((prev) => prev.map((a) => (a.id === id ? { ...a, isFavorite } : a)));
   }
-
-  // Apply filter/sort client-side on initial data; server handles it on re-fetch
-  const articles = mounted
-    ? allArticles
-    : allArticles
-        .filter((a) => {
-          if (filter === "read") return a.isRead;
-          if (filter === "unread") return !a.isRead;
-          if (filter === "favorites") return a.isFavorite;
-          return true;
-        })
-        .sort((a, b) =>
-          sort === "asc"
-            ? new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
-            : new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-        );
 
   const unreadCount = allArticles.filter((a) => !a.isRead).length;
 
@@ -129,28 +110,26 @@ export default function HomeContent({ initialArticles }: Props) {
 
       <div className="px-4 md:px-6 py-4">
         {loading && (
-          <div className="flex items-center justify-center gap-2 py-3 mb-3 bg-yellow-50 dark:bg-yellow-950/30 rounded-xl text-yellow-700 dark:text-yellow-400 text-sm font-medium">
-            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            記事を読み込んでいます...
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="h-56 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+            ))}
           </div>
         )}
-        {!loading && articles.length === 0 && (
+        {!loading && allArticles.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
             <div className="text-5xl mb-4">📰</div>
             <p className="text-lg font-medium mb-2">記事がありません</p>
             <p className="text-sm">
               {filter !== "all"
                 ? "フィルターを変更してみてください"
-                : "サイトを追加して「更新」ボタンを押してください"}
+                : "サイトを追加して「記事を更新」ボタンを押してください"}
             </p>
           </div>
         )}
-        {articles.length > 0 && (
+        {!loading && allArticles.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {articles.map((article) => (
+            {allArticles.map((article) => (
               <ArticleCard
                 key={article.id}
                 article={article}
