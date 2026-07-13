@@ -123,13 +123,16 @@ export default function HomeContent({ initialArticles }: Props) {
       </div>
 
       <div className="px-4 md:px-6 py-4">
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-56 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-            ))}
+        {loading && (
+          <div className="flex items-center justify-center gap-2 py-3 mb-3 bg-yellow-50 dark:bg-yellow-950/30 rounded-xl text-yellow-700 dark:text-yellow-400 text-sm font-medium">
+            <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            記事を読み込んでいます...
           </div>
-        ) : articles.length === 0 ? (
+        )}
+        {!loading && articles.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
             <div className="text-5xl mb-4">📰</div>
             <p className="text-lg font-medium mb-2">記事がありません</p>
@@ -139,7 +142,8 @@ export default function HomeContent({ initialArticles }: Props) {
                 : "サイトを追加して「更新」ボタンを押してください"}
             </p>
           </div>
-        ) : (
+        )}
+        {articles.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {articles.map((article) => (
               <ArticleCard
