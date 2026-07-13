@@ -113,7 +113,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
           {pathname === "/" && <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
+            className="hidden md:flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0 min-w-[7rem]"
           >
             <svg
               className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
@@ -163,7 +163,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
           {pathname === "/" && <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-medium rounded-lg transition shrink-0 min-w-[7rem]"
           >
             <svg
               className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
