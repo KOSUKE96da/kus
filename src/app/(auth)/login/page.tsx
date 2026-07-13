@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, FormEvent } from "react";
+import { useState, useRef, useEffect, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,11 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigating = useRef(false);
+
+  // ログインページ表示時にホーム画面をプリフェッチして遷移を高速化
+  useEffect(() => {
+    router.prefetch("/");
+  }, [router]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
