@@ -81,8 +81,8 @@ export default function HomeContent() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 shrink-0">
             ホーム
             {unreadCount > 0 && (
               <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -90,31 +90,31 @@ export default function HomeContent() {
               </span>
             )}
           </h1>
+        </div>
 
-          <div className="flex items-center gap-2 ml-auto flex-wrap">
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-              {filterButtons.map((btn) => (
-                <button
-                  key={btn.key}
-                  onClick={() => setFilter(btn.key)}
-                  className={`px-3 py-1.5 text-sm transition ${
-                    filter === btn.key
-                      ? "bg-yellow-400 text-gray-900 font-medium"
-                      : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="flex flex-1 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            {filterButtons.map((btn) => (
+              <button
+                key={btn.key}
+                onClick={() => setFilter(btn.key)}
+                className={`flex-1 px-3 py-1.5 text-sm transition ${
+                  filter === btn.key
+                    ? "bg-yellow-400 text-gray-900 font-medium"
+                    : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
 
             <button
-              onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-            >
-              {sort === "desc" ? "▼ 新しい順" : "▲ 古い順"}
-            </button>
-          </div>
+            onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition shrink-0"
+          >
+            {sort === "desc" ? "▼ 新しい順" : "▲ 古い順"}
+          </button>
         </div>
 
         {/* 検索バー */}
