@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import LoginTransitionOverlay from "@/components/LoginTransitionOverlay";
 
 interface Props {
@@ -26,6 +26,9 @@ const AUTO_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export default function MainLayoutClient({ children, user, unreadCount }: Props) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  // セッションの最新画像を優先（アバター変更の即時反映）
+  const avatarImage = session?.user?.image ?? user.image;
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [refreshMsg, setRefreshMsg] = useState<string | null>(null);
@@ -129,8 +132,8 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
 
           {/* User avatar */}
           <div className="flex items-center gap-2 shrink-0">
-            {user.image ? (
-              <img src={user.image} alt={user.name} className="w-7 h-7 rounded-full object-cover" />
+            {avatarImage ? (
+              <img src={avatarImage} alt={user.name} className="w-7 h-7 rounded-full object-cover" />
             ) : (
               <div className="w-7 h-7 rounded-full bg-yellow-400 text-gray-900 text-xs font-bold flex items-center justify-center shrink-0">
                 {initials}
