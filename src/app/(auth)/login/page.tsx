@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigating = useRef(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -26,13 +27,13 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("メールアドレスまたはパスワードが正しくありません");
+        setLoading(false);
       } else {
+        navigating.current = true;
         router.push("/");
-        router.refresh();
       }
     } catch {
       setError("ログイン中にエラーが発生しました");
-    } finally {
       setLoading(false);
     }
   }
@@ -101,7 +102,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || navigating.current}
               className="w-full py-2.5 px-4 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 disabled:cursor-not-allowed text-blue-900 font-medium rounded-lg transition focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
             >
               {loading ? "ログイン中..." : "ログイン"}
