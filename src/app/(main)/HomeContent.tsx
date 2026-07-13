@@ -112,10 +112,8 @@ export default function HomeContent() {
 
       <div className="px-4 md:px-6 py-4">
         {loading && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="h-56 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-            ))}
+          <div className="flex items-center justify-center py-24 text-gray-400 dark:text-gray-600">
+            <p className="text-sm">記事を読み込んでいます...</p>
           </div>
         )}
         {!loading && allArticles.length === 0 && (
