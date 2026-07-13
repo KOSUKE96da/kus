@@ -31,6 +31,14 @@ export async function GET() {
   );
 
   const totalArticles = await prisma.article.count({ where: { site: { userId } } });
+  const totalFavorites = await prisma.favorite.count({ where: { userId } });
 
-  return Response.json({ totalArticles, stats });
+  const recentFavorites = await prisma.favorite.findMany({
+    where: { userId },
+    include: { article: { select: { title: true, publishedAt: true, siteId: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+
+  return Response.json({ totalArticles, totalFavorites, recentFavorites, stats });
 }
