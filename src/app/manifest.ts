@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "お気に入りのRSSフィードを一箇所で管理するアプリ",
     start_url: "/",
     display: "standalone",
-    background_color: "#111111",
+    background_color: "#ffffff",
     theme_color: "#FACC15",
     orientation: "portrait",
     lang: "ja",

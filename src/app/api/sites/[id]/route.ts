@@ -54,6 +54,22 @@ export async function DELETE(
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
+  // お気に入り記事があるか確認
+  const favoriteCount = await prisma.favorite.count({
+    where: { userId, article: { siteId: id } },
+  });
+
+  // force=true の場合のみ削除を許可
+  const url = new URL(_request.url);
+  const force = url.searchParams.get("force") === "true";
+
+  if (favoriteCount > 0 && !force) {
+    return Response.json(
+      { error: "HAS_FAVORITES", favoriteCount },
+      { status: 409 }
+    );
+  }
+
   await prisma.site.delete({ where: { id } });
 
   return Response.json({ success: true });

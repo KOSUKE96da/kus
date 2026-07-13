@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "src/app/api/feed/refresh/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/feed/fetch-thumbnails/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
