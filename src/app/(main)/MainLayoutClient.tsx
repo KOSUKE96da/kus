@@ -132,7 +132,7 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
             {user.image ? (
               <img src={user.image} alt={user.name} className="w-7 h-7 rounded-full object-cover" />
             ) : (
-              <div className="w-7 h-7 rounded-full bg-yellow-400 text-gray-900 text-xs font-bold flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-yellow-400 text-gray-900 text-xs font-bold flex items-center justify-center shrink-0">
                 {initials}
               </div>
             )}
