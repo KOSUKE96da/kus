@@ -61,15 +61,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+        token.image = user.image ?? null;
+      }
+      // update() 呼び出し時にトークンへ反映
+      if (trigger === "update" && session?.image !== undefined) {
+        token.image = session.image;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         (session.user as any).id = token.id as string;
+        session.user.image = (token.image as string | null) ?? null;
       }
       return session;
     },
