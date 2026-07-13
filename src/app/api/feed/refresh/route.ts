@@ -79,49 +79,62 @@ export async function POST() {
 
   let newArticlesCount = 0;
   const now = new Date();
+  const debug: any[] = [];
 
   await Promise.all(
     sites.map(async (site) => {
+      const siteDebug: any = { site: site.name, feedUrl: site.feedUrl };
       try {
         const { items: feedItems, feedMeta } = await fetchFeedItems(site.feedUrl);
+        siteDebug.fetched = feedItems.length;
 
         await prisma.site.update({
           where: { id: site.id },
           data: { lastFetched: now, siteUrl: feedMeta.link || site.siteUrl || null },
         });
 
-        // Batch: fetch all existing article URLs for this site at once
         const existingUrls = new Set(
           (await prisma.article.findMany({
             where: { siteId: site.id },
             select: { url: true },
           })).map((a) => a.url)
         );
+        siteDebug.existing = existingUrls.size;
 
-        // Filter to only new articles
         const newItems = feedItems.filter(
           (item: any) => item.link && item.title && !existingUrls.has(item.link)
         );
+        siteDebug.new = newItems.length;
 
-        if (newItems.length === 0) return;
+        if (newItems.length === 0) { debug.push(siteDebug); return; }
 
-        // Batch insert all new articles at once
-        const data = newItems.map((item: any) => ({
-          siteId: site.id,
-          title: item.title,
-          url: item.link,
-          publishedAt: parseDate(item),
-          excerpt: item.contentSnippet ? item.contentSnippet.slice(0, 500) : null,
-          thumbnailUrl: extractThumbnailFromRss(item),
-        }));
-
-        const result = await (prisma.article.createMany as any)({ data, skipDuplicates: true });
-        newArticlesCount += result.count;
-      } catch (err) {
+        let inserted = 0;
+        for (const item of newItems) {
+          try {
+            await prisma.article.create({
+              data: {
+                siteId: site.id,
+                title: item.title,
+                url: item.link,
+                publishedAt: parseDate(item),
+                excerpt: item.contentSnippet ? item.contentSnippet.slice(0, 500) : null,
+                thumbnailUrl: extractThumbnailFromRss(item),
+              },
+            });
+            inserted++;
+          } catch {
+            // 重複はスキップ
+          }
+        }
+        newArticlesCount += inserted;
+        siteDebug.inserted = inserted;
+      } catch (err: any) {
+        siteDebug.error = err?.message || String(err);
         console.error(`Failed to fetch feed for site ${site.id}:`, err);
       }
+      debug.push(siteDebug);
     })
   );
 
-  return Response.json({ newArticles: newArticlesCount });
+  return Response.json({ newArticles: newArticlesCount, sites: sites.length, debug });
 }
