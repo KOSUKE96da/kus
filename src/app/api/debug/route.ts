@@ -33,12 +33,12 @@ export async function GET() {
   const totalArticles = await prisma.article.count({ where: { site: { userId } } });
   const totalFavorites = await prisma.favorite.count({ where: { userId } });
 
-  const recentFavorites = await prisma.favorite.findMany({
-    where: { userId },
-    include: { article: { select: { title: true, publishedAt: true, siteId: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 5,
+  // お気に入りフィルターで返る記事数を確認
+  const favArticles = await prisma.article.findMany({
+    where: { site: { userId }, favorites: { some: { userId } } },
+    select: { id: true, title: true, publishedAt: true },
+    orderBy: { publishedAt: "desc" },
   });
 
-  return Response.json({ totalArticles, totalFavorites, recentFavorites, stats });
+  return Response.json({ totalArticles, totalFavorites, favArticleCount: favArticles.length, favArticles, stats });
 }
