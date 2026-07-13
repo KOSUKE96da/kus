@@ -16,6 +16,11 @@ export default function HomeContent({ initialArticles }: Props) {
   const [sort, setSort] = useState<Sort>("desc");
   const [loading, setLoading] = useState(false);
 
+  // router.refresh() でサーバーから新しい initialArticles が来たら反映する
+  useEffect(() => {
+    if (initialArticles) setAllArticles(initialArticles);
+  }, [initialArticles]);
+
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
