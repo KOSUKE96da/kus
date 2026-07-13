@@ -37,7 +37,7 @@ export default function LoginPage() {
         setLoading(false);
       } else {
         navigating.current = true;
-        router.push("/");
+        window.location.href = "/";
       }
     } catch {
       setError("ログイン中にエラーが発生しました");

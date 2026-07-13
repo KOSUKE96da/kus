@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCachedSession } from "@/lib/getSession";
 import MainLayoutClient from "./(main)/MainLayoutClient";
 import HomeContent from "./(main)/HomeContent";
-import { getUnreadCount } from "@/lib/getArticles";
 
 export default async function RootPage() {
   const session = await getCachedSession();
@@ -11,11 +10,6 @@ export default async function RootPage() {
     redirect("/login");
   }
 
-  const userId = (session.user as any).id as string;
-
-  // 記事はクライアント側でフェッチするためここでは未読数のみ取得（高速化）
-  const unreadCount = await getUnreadCount(userId);
-
   return (
     <MainLayoutClient
       user={{
@@ -23,7 +17,7 @@ export default async function RootPage() {
         email: session.user.email || "",
         image: session.user.image || null,
       }}
-      unreadCount={unreadCount}
+      unreadCount={0}
     >
       <HomeContent />
     </MainLayoutClient>
