@@ -216,7 +216,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between p-4">
             <span className="text-sm text-gray-300">バージョン</span>
-            <span className="text-sm font-medium text-gray-100">3.00.00</span>
+            <span className="text-sm font-medium text-gray-100">5.00.01</span>
           </div>
           <div className="flex items-center justify-between p-4">
             <span className="text-sm text-gray-300">フレームワーク</span>
