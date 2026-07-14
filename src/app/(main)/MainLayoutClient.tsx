@@ -44,12 +44,14 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
       fetch("/api/feed/fetch-thumbnails", { method: "POST" }).catch(() => {});
       setRefreshMsg(`${data.newArticles} 件の新着記事を取得しました`);
       setTimeout(() => setRefreshMsg(null), 4000);
-      window.dispatchEvent(new CustomEvent("feedRefreshed"));
     } catch {
       setRefreshMsg("更新に失敗しました");
       setTimeout(() => setRefreshMsg(null), 4000);
     } finally {
       setRefreshing(false);
+      // Always fire once (success or failure) so listeners re-fetch and the
+      // login overlay can dismiss only after the post-refresh list is ready.
+      window.dispatchEvent(new CustomEvent("feedRefreshed"));
     }
   }
 

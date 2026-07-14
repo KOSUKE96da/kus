@@ -10,13 +10,46 @@ export default function LoginTransitionOverlay() {
     setShow(true);
     document.documentElement.style.visibility = "";
 
-    const hide = () => {
+    // If an auto feed-refresh kicks in on load, keep the overlay up until the
+    // POST-refresh article list is ready — otherwise the pre-refresh list
+    // flashes for a moment before being replaced. When no refresh runs, the
+    // first "home ready" is already the final list, so dismiss then.
+    let refreshPending = false;
+    let done = false;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      cleanup();
       setShow(false);
       sessionStorage.removeItem("kf_login_pending");
     };
 
-    window.addEventListener("kf_home_ready", hide, { once: true });
-    return () => window.removeEventListener("kf_home_ready", hide);
+    const onRefreshStart = () => {
+      refreshPending = true;
+    };
+    const onRefreshed = () => {
+      // Refresh finished; the follow-up fetch will fire kf_home_ready next.
+      refreshPending = false;
+    };
+    const onReady = () => {
+      if (!refreshPending) finish();
+    };
+
+    // Safety net: never keep the overlay up indefinitely (e.g. refresh hang).
+    const safety = window.setTimeout(finish, 15000);
+
+    function cleanup() {
+      window.clearTimeout(safety);
+      window.removeEventListener("feedRefreshStart", onRefreshStart);
+      window.removeEventListener("feedRefreshed", onRefreshed);
+      window.removeEventListener("kf_home_ready", onReady);
+    }
+
+    window.addEventListener("feedRefreshStart", onRefreshStart);
+    window.addEventListener("feedRefreshed", onRefreshed);
+    window.addEventListener("kf_home_ready", onReady);
+    return cleanup;
   }, []);
 
   if (!show) return null;
