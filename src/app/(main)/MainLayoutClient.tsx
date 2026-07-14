@@ -37,7 +37,6 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
   async function handleRefresh() {
     setRefreshing(true);
     setRefreshMsg(null);
-    window.dispatchEvent(new CustomEvent("feedRefreshStart"));
     try {
       const res = await fetch("/api/feed/refresh", { method: "POST" });
       const data = await res.json();
@@ -49,8 +48,8 @@ export default function MainLayoutClient({ children, user, unreadCount }: Props)
       setTimeout(() => setRefreshMsg(null), 4000);
     } finally {
       setRefreshing(false);
-      // Always fire once (success or failure) so listeners re-fetch and the
-      // login overlay can dismiss only after the post-refresh list is ready.
+      // Fire once (success or failure) so HomeContent silently re-fetches and
+      // merges any new articles into the list already on screen.
       window.dispatchEvent(new CustomEvent("feedRefreshed"));
     }
   }

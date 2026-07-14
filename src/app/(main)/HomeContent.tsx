@@ -13,15 +13,17 @@ export default function HomeContent() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const fetchArticles = useCallback(async () => {
-    setLoading(true);
+  const fetchArticles = useCallback(async (silent = false) => {
+    // silent = background refresh: keep the current list on screen and merge
+    // the result in place, so the home view never blanks out to a spinner.
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/articles?${new URLSearchParams({ filter, sort })}`);
       if (res.ok) setAllArticles(await res.json());
     } catch {
       // ignore
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
       window.dispatchEvent(new CustomEvent("kf_home_ready"));
     }
   }, [filter, sort]);
@@ -31,12 +33,10 @@ export default function HomeContent() {
   }, [fetchArticles]);
 
   useEffect(() => {
-    const onStart = () => setLoading(true);
-    window.addEventListener("feedRefreshStart", onStart);
-    window.addEventListener("feedRefreshed", fetchArticles);
+    const onRefreshed = () => fetchArticles(true);
+    window.addEventListener("feedRefreshed", onRefreshed);
     return () => {
-      window.removeEventListener("feedRefreshStart", onStart);
-      window.removeEventListener("feedRefreshed", fetchArticles);
+      window.removeEventListener("feedRefreshed", onRefreshed);
     };
   }, [fetchArticles]);
 
