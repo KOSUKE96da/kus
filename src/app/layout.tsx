@@ -39,7 +39,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       style={{ colorScheme: "dark", backgroundColor: "#030712", color: "#f9fafb" }}
     >
-      <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
+      <body className="min-h-full flex flex-col bg-gray-950 text-gray-100" style={{ backgroundColor: "#030712", color: "#f9fafb" }}>
         <script dangerouslySetInnerHTML={{ __html: `(function(){document.documentElement.style.colorScheme='dark';document.documentElement.style.backgroundColor='#030712';if(sessionStorage.getItem('kf_login_pending')){document.documentElement.style.visibility='hidden';}})();` }} />
         <script
           dangerouslySetInnerHTML={{
