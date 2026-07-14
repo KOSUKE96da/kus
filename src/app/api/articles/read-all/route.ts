@@ -22,15 +22,27 @@ export async function POST() {
 
   const articleIds = articles.map((a) => a.id);
 
+  // libSQL/SQLite adapter doesn't support createMany({ skipDuplicates }),
+  // so insert only the rows that don't already exist for this user.
+  const existing = await prisma.readStatus.findMany({
+    where: { userId, articleId: { in: articleIds } },
+    select: { articleId: true },
+  });
+  const existingIds = new Set(existing.map((e) => e.articleId));
+  const missingIds = articleIds.filter((id) => !existingIds.has(id));
+
   await prisma.$transaction([
     prisma.readStatus.updateMany({
       where: { userId, articleId: { in: articleIds } },
       data: { isRead: true, readAt: now },
     }),
-    prisma.readStatus.createMany({
-      data: articleIds.map((articleId) => ({ userId, articleId, isRead: true, readAt: now })),
-      skipDuplicates: true,
-    }),
+    ...(missingIds.length > 0
+      ? [
+          prisma.readStatus.createMany({
+            data: missingIds.map((articleId) => ({ userId, articleId, isRead: true, readAt: now })),
+          }),
+        ]
+      : []),
   ]);
 
   return Response.json({ count: articles.length });

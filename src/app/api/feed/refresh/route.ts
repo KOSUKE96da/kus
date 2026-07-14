@@ -100,9 +100,15 @@ export async function POST() {
         );
         siteDebug.existing = existingUrls.size;
 
-        const newItems = feedItems.filter(
-          (item: any) => item.link && item.title && !existingUrls.has(item.link)
-        );
+        // Exclude articles already in the DB, and de-duplicate links within
+        // this feed batch (libSQL's createMany has no skipDuplicates option).
+        const seenUrls = new Set<string>();
+        const newItems = feedItems.filter((item: any) => {
+          if (!item.link || !item.title || existingUrls.has(item.link)) return false;
+          if (seenUrls.has(item.link)) return false;
+          seenUrls.add(item.link);
+          return true;
+        });
         siteDebug.new = newItems.length;
 
         if (newItems.length === 0) { debug.push(siteDebug); return; }
@@ -116,7 +122,6 @@ export async function POST() {
             excerpt: item.contentSnippet ? item.contentSnippet.slice(0, 500) : null,
             thumbnailUrl: extractThumbnailFromRss(item),
           })),
-          skipDuplicates: true,
         });
 
         newArticlesCount += result.count;
