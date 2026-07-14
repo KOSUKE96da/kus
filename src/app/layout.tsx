@@ -37,9 +37,10 @@ export default function RootLayout({
     <html
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ colorScheme: "dark", backgroundColor: "#030712", color: "#f9fafb" }}
     >
       <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
-        <script dangerouslySetInnerHTML={{ __html: `(function(){if(sessionStorage.getItem('kf_login_pending')){document.documentElement.style.visibility='hidden';}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){document.documentElement.style.colorScheme='dark';document.documentElement.style.backgroundColor='#030712';if(sessionStorage.getItem('kf_login_pending')){document.documentElement.style.visibility='hidden';}})();` }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')})}`,
