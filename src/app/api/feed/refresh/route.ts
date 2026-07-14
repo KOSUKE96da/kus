@@ -3,8 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Parser from "rss-parser";
 
-const MAX_ITEMS_PER_SITE = 100;
-
 const parser = new Parser({
   customFields: {
     item: [
@@ -28,27 +26,25 @@ async function fetchFeedItems(feedUrl: string): Promise<{ items: any[]; feedMeta
   const feed = await parseFeedWithTimeout(feedUrl);
   let items = [...feed.items];
 
-  // Try pagination pages in parallel if we need more items
-  if (items.length < MAX_ITEMS_PER_SITE) {
-    const seenUrls = new Set(items.map((i: any) => i.link).filter(Boolean));
-    const pageUrls: string[] = [];
-    for (let page = 2; page <= 3; page++) {
-      const wp = new URL(feedUrl); wp.searchParams.set("paged", String(page)); pageUrls.push(wp.toString());
-      const pg = new URL(feedUrl); pg.searchParams.set("page", String(page)); pageUrls.push(pg.toString());
-    }
-    const results = await Promise.allSettled(
-      pageUrls.map((u) => parseFeedWithTimeout(u, 3000))
-    );
-    for (const r of results) {
-      if (r.status === "fulfilled") {
-        const newItems = r.value.items.filter((i: any) => i.link && !seenUrls.has(i.link));
-        newItems.forEach((i: any) => seenUrls.add(i.link));
-        items = items.concat(newItems);
-      }
+  // Try pagination pages in parallel to get more items
+  const seenUrls = new Set(items.map((i: any) => i.link).filter(Boolean));
+  const pageUrls: string[] = [];
+  for (let page = 2; page <= 3; page++) {
+    const wp = new URL(feedUrl); wp.searchParams.set("paged", String(page)); pageUrls.push(wp.toString());
+    const pg = new URL(feedUrl); pg.searchParams.set("page", String(page)); pageUrls.push(pg.toString());
+  }
+  const results = await Promise.allSettled(
+    pageUrls.map((u) => parseFeedWithTimeout(u, 3000))
+  );
+  for (const r of results) {
+    if (r.status === "fulfilled") {
+      const newItems = r.value.items.filter((i: any) => i.link && !seenUrls.has(i.link));
+      newItems.forEach((i: any) => seenUrls.add(i.link));
+      items = items.concat(newItems);
     }
   }
 
-  return { items: items.slice(0, MAX_ITEMS_PER_SITE), feedMeta: feed };
+  return { items, feedMeta: feed };
 }
 
 function extractThumbnailFromRss(item: any): string | null {

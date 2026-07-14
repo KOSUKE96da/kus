@@ -36,7 +36,6 @@ export async function getArticles(
   filter: "all" | "unread" | "read" | "favorites" = "all",
   sort: "desc" | "asc" = "desc",
   siteId?: string,
-  limit = 100
 ): Promise<ArticleRow[]> {
   const siteWhere = siteId ? { id: siteId, userId } : { userId };
   const order = sort === "asc" ? ("asc" as const) : ("desc" as const);
@@ -63,12 +62,10 @@ export async function getArticles(
     return articles.map(toRow);
   }
 
-  // 最新N件を取得
   const recent = await prisma.article.findMany({
     where: { site: siteWhere },
     include: inc,
     orderBy: { publishedAt: order },
-    take: limit,
   });
 
   // お気に入り記事を追加取得（件数制限に関わらず必ず含める）
