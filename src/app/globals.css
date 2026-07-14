@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+:root,
+html {
+  background-color: #030712;
+  color: #f9fafb;
   color-scheme: dark;
+  --background: #030712;
+  --foreground: #f9fafb;
 }
 
 @theme inline {
@@ -14,7 +17,17 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: #030712;
+  color: #f9fafb;
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+}
+
+/* Prevent OS/browser light-mode overrides on native form elements */
+@media (prefers-color-scheme: light) {
+  :root,
+  html {
+    color-scheme: dark;
+    background-color: #030712;
+    color: #f9fafb;
+  }
 }

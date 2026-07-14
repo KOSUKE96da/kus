@@ -33,6 +33,7 @@ export default function RootLayout({
     <html
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ backgroundColor: "#030712", colorScheme: "dark" }}
     >
       <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
         {/* ログイン遷移中はページを即座に非表示にしてフラッシュを防ぐ */}
