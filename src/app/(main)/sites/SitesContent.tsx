@@ -20,7 +20,6 @@ interface Props {
 
 export default function SitesContent({ initialSites }: Props) {
   const [sites, setSites] = useState<Site[]>(initialSites);
-  const [loading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -279,13 +278,7 @@ export default function SitesContent({ initialSites }: Props) {
         </div>
       )}
 
-      {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-16 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
-          ))}
-        </div>
-      ) : sites.length === 0 ? (
+      {sites.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
           <div className="text-5xl mb-4">📡</div>
           <p className="text-lg font-medium mb-2">サイトが登録されていません</p>

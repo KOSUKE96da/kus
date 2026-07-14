@@ -24,23 +24,26 @@ async function parseFeedWithTimeout(url: string, timeoutMs = 6000): Promise<any>
 
 async function fetchFeedItems(feedUrl: string): Promise<{ items: any[]; feedMeta: any }> {
   const feed = await parseFeedWithTimeout(feedUrl);
-  let items = [...feed.items];
+  const items = [...feed.items];
 
-  // Try pagination pages in parallel to get more items
   const seenUrls = new Set(items.map((i: any) => i.link).filter(Boolean));
   const pageUrls: string[] = [];
   for (let page = 2; page <= 3; page++) {
     const wp = new URL(feedUrl); wp.searchParams.set("paged", String(page)); pageUrls.push(wp.toString());
     const pg = new URL(feedUrl); pg.searchParams.set("page", String(page)); pageUrls.push(pg.toString());
   }
+
   const results = await Promise.allSettled(
     pageUrls.map((u) => parseFeedWithTimeout(u, 3000))
   );
   for (const r of results) {
     if (r.status === "fulfilled") {
-      const newItems = r.value.items.filter((i: any) => i.link && !seenUrls.has(i.link));
-      newItems.forEach((i: any) => seenUrls.add(i.link));
-      items = items.concat(newItems);
+      for (const item of r.value.items) {
+        if (item.link && !seenUrls.has(item.link)) {
+          seenUrls.add(item.link);
+          items.push(item);
+        }
+      }
     }
   }
 
@@ -104,26 +107,20 @@ export async function POST() {
 
         if (newItems.length === 0) { debug.push(siteDebug); return; }
 
-        let inserted = 0;
-        for (const item of newItems) {
-          try {
-            await prisma.article.create({
-              data: {
-                siteId: site.id,
-                title: item.title,
-                url: item.link,
-                publishedAt: parseDate(item),
-                excerpt: item.contentSnippet ? item.contentSnippet.slice(0, 500) : null,
-                thumbnailUrl: extractThumbnailFromRss(item),
-              },
-            });
-            inserted++;
-          } catch {
-            // 重複はスキップ
-          }
-        }
-        newArticlesCount += inserted;
-        siteDebug.inserted = inserted;
+        const result = await prisma.article.createMany({
+          data: newItems.map((item: any) => ({
+            siteId: site.id,
+            title: item.title,
+            url: item.link,
+            publishedAt: parseDate(item),
+            excerpt: item.contentSnippet ? item.contentSnippet.slice(0, 500) : null,
+            thumbnailUrl: extractThumbnailFromRss(item),
+          })),
+          skipDuplicates: true,
+        });
+
+        newArticlesCount += result.count;
+        siteDebug.inserted = result.count;
       } catch (err: any) {
         siteDebug.error = err?.message || String(err);
         console.error(`Failed to fetch feed for site ${site.id}:`, err);

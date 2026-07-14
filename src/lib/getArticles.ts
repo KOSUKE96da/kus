@@ -45,56 +45,30 @@ export async function getArticles(
     favorites: { where: { userId }, select: { id: true } },
   };
 
-  // お気に入り記事IDを先に取得（関係クエリを避けてTursoの互換性を確保）
-  const favRows = await prisma.favorite.findMany({
-    where: { userId },
-    select: { articleId: true },
-  });
-  const favoriteIds = new Set(favRows.map((f) => f.articleId));
-
   if (filter === "favorites") {
-    if (favoriteIds.size === 0) return [];
+    const favRows = await prisma.favorite.findMany({
+      where: { userId },
+      select: { articleId: true },
+    });
+    if (favRows.length === 0) return [];
     const articles = await prisma.article.findMany({
-      where: { id: { in: Array.from(favoriteIds) }, site: siteWhere },
+      where: { id: { in: favRows.map((f) => f.articleId) }, site: siteWhere },
       include: inc,
       orderBy: { publishedAt: order },
     });
     return articles.map(toRow);
   }
 
-  const recent = await prisma.article.findMany({
+  const articles = await prisma.article.findMany({
     where: { site: siteWhere },
     include: inc,
     orderBy: { publishedAt: order },
   });
 
-  // お気に入り記事を追加取得（件数制限に関わらず必ず含める）
-  const recentIds = new Set(recent.map((a) => a.id));
-  const missingFavIds = Array.from(favoriteIds).filter((id) => !recentIds.has(id));
-
-  let favorited: typeof recent = [];
-  if (missingFavIds.length > 0) {
-    favorited = await prisma.article.findMany({
-      where: { id: { in: missingFavIds }, site: siteWhere },
-      include: inc,
-      orderBy: { publishedAt: order },
-    });
-  }
-
-  const merged = [...recent, ...favorited];
-  merged.sort((a, b) =>
-    order === "desc"
-      ? b.publishedAt.getTime() - a.publishedAt.getTime()
-      : a.publishedAt.getTime() - b.publishedAt.getTime()
-  );
-
-  return merged
-    .map(toRow)
-    .filter((a) => {
-      if (filter === "read") return a.isRead;
-      if (filter === "unread") return !a.isRead;
-      return true;
-    });
+  const rows = articles.map(toRow);
+  if (filter === "read") return rows.filter((a) => a.isRead);
+  if (filter === "unread") return rows.filter((a) => !a.isRead);
+  return rows;
 }
 
 export const getUnreadCount = cache(async (userId: string): Promise<number> => {

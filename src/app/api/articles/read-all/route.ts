@@ -9,35 +9,29 @@ export async function POST() {
   }
 
   const userId = (session.user as any).id as string;
+  const now = new Date();
 
-  // Get all articles from user's sites
-  const userSites = await prisma.site.findMany({
-    where: { userId },
+  const articles = await prisma.article.findMany({
+    where: { site: { userId } },
     select: { id: true },
   });
-  const userSiteIds = userSites.map((s) => s.id);
 
-  if (userSiteIds.length === 0) {
+  if (articles.length === 0) {
     return Response.json({ count: 0 });
   }
 
-  const articles = await prisma.article.findMany({
-    where: { siteId: { in: userSiteIds } },
-    select: { id: true },
-  });
+  const articleIds = articles.map((a) => a.id);
 
-  const now = new Date();
-
-  // Upsert read status for all articles
-  await Promise.all(
-    articles.map((article) =>
-      prisma.readStatus.upsert({
-        where: { userId_articleId: { userId, articleId: article.id } },
-        create: { userId, articleId: article.id, isRead: true, readAt: now },
-        update: { isRead: true, readAt: now },
-      })
-    )
-  );
+  await prisma.$transaction([
+    prisma.readStatus.updateMany({
+      where: { userId, articleId: { in: articleIds } },
+      data: { isRead: true, readAt: now },
+    }),
+    prisma.readStatus.createMany({
+      data: articleIds.map((articleId) => ({ userId, articleId, isRead: true, readAt: now })),
+      skipDuplicates: true,
+    }),
+  ]);
 
   return Response.json({ count: articles.length });
 }

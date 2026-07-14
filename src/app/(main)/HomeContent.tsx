@@ -16,12 +16,8 @@ export default function HomeContent() {
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ filter, sort });
-      const res = await fetch(`/api/articles?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        setAllArticles(data);
-      }
+      const res = await fetch(`/api/articles?${new URLSearchParams({ filter, sort })}`);
+      if (res.ok) setAllArticles(await res.json());
     } catch {
       // ignore
     } finally {
@@ -30,25 +26,19 @@ export default function HomeContent() {
     }
   }, [filter, sort]);
 
+  // Fetch on mount and whenever filter/sort changes
   useEffect(() => {
     fetchArticles();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchArticles]);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    if (!mounted) { setMounted(true); return; }
-    fetchArticles();
-  }, [filter, sort]);
-
+  // Listen for refresh events
   useEffect(() => {
     const onStart = () => setLoading(true);
-    const onDone = () => fetchArticles();
     window.addEventListener("feedRefreshStart", onStart);
-    window.addEventListener("feedRefreshed", onDone);
+    window.addEventListener("feedRefreshed", fetchArticles);
     return () => {
       window.removeEventListener("feedRefreshStart", onStart);
-      window.removeEventListener("feedRefreshed", onDone);
+      window.removeEventListener("feedRefreshed", fetchArticles);
     };
   }, [fetchArticles]);
 
@@ -109,7 +99,7 @@ export default function HomeContent() {
             ))}
           </div>
 
-            <button
+          <button
             onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition shrink-0"
           >
@@ -117,7 +107,6 @@ export default function HomeContent() {
           </button>
         </div>
 
-        {/* 検索バー */}
         <div className="relative">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
