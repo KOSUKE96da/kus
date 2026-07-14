@@ -7,7 +7,9 @@ export default function LoginTransitionOverlay() {
 
   useLayoutEffect(() => {
     if (!sessionStorage.getItem("kf_login_pending")) return;
+    // オーバーレイを表示してからページの visibility を戻す（フラッシュ防止）
     setShow(true);
+    document.documentElement.style.visibility = "";
 
     const hide = () => {
       setShow(false);

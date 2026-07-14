@@ -35,6 +35,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
+        {/* ログイン遷移中はページを即座に非表示にしてフラッシュを防ぐ */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){if(sessionStorage.getItem('kf_login_pending')){document.documentElement.style.visibility='hidden';}})();` }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')})}`,
