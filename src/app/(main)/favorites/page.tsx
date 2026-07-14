@@ -68,11 +68,11 @@ export default function FavoritesPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
+      <div className="sticky top-0 z-20 bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-xl font-bold text-gray-100">
             お気に入り
-            <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+            <span className="ml-2 text-sm font-normal text-gray-400">
               ({articles.length} 件)
             </span>
           </h1>
@@ -80,7 +80,7 @@ export default function FavoritesPage() {
             <button
               onClick={handleRemoveAll}
               disabled={removingAll}
-              className="ml-auto px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-60 transition"
+              className="ml-auto px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-red-400 hover:bg-red-950 disabled:opacity-60 transition"
             >
               {removingAll ? "処理中..." : "すべて解除"}
             </button>
@@ -96,12 +96,12 @@ export default function FavoritesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="記事を検索..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
             >
               ✕
             </button>
@@ -119,7 +119,7 @@ export default function FavoritesPage() {
             <p className="text-sm text-yellow-400">記事を読み込んでいます...</p>
           </div>
         ) : displayed.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
+          <div className="flex flex-col items-center justify-center py-24 text-gray-600">
             <div className="text-5xl mb-4">★</div>
             <p className="text-lg font-medium mb-2">
               {q ? "一致する記事がありません" : "お気に入りはありません"}

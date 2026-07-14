@@ -26,12 +26,10 @@ export default function HomeContent() {
     }
   }, [filter, sort]);
 
-  // Fetch on mount and whenever filter/sort changes
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);
 
-  // Listen for refresh events
   useEffect(() => {
     const onStart = () => setLoading(true);
     window.addEventListener("feedRefreshStart", onStart);
@@ -70,12 +68,12 @@ export default function HomeContent() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
+      <div className="sticky top-0 z-20 bg-gray-950 px-4 md:px-6 py-3 flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 shrink-0">
+          <h1 className="text-xl font-bold text-gray-100 shrink-0">
             ホーム
             {unreadCount > 0 && (
-              <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+              <span className="ml-2 text-sm font-normal text-gray-400">
                 ({unreadCount} 未読)
               </span>
             )}
@@ -83,7 +81,7 @@ export default function HomeContent() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex flex-1 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-1 rounded-lg overflow-hidden border border-gray-700">
             {filterButtons.map((btn) => (
               <button
                 key={btn.key}
@@ -91,7 +89,7 @@ export default function HomeContent() {
                 className={`flex-1 px-1 md:px-3 py-1.5 text-xs md:text-sm transition whitespace-nowrap ${
                   filter === btn.key
                     ? "bg-yellow-400 text-gray-900 font-medium"
-                    : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    : "bg-gray-900 text-gray-400 hover:bg-gray-800"
                 }`}
               >
                 {btn.label}
@@ -101,7 +99,7 @@ export default function HomeContent() {
 
           <button
             onClick={() => setSort((s) => (s === "desc" ? "asc" : "desc"))}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition shrink-0"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 transition shrink-0"
           >
             {sort === "desc" ? "▼ 新しい順" : "▲ 古い順"}
           </button>
@@ -116,12 +114,12 @@ export default function HomeContent() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="記事を検索..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-900 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
             >
               ✕
             </button>
@@ -140,7 +138,7 @@ export default function HomeContent() {
           </div>
         )}
         {!loading && displayedArticles.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-gray-400 dark:text-gray-600">
+          <div className="flex flex-col items-center justify-center py-24 text-gray-600">
             <div className="text-5xl mb-4">📰</div>
             <p className="text-lg font-medium mb-2">記事がありません</p>
             <p className="text-sm">

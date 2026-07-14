@@ -7,7 +7,6 @@ export default function LoginTransitionOverlay() {
 
   useLayoutEffect(() => {
     if (!sessionStorage.getItem("kf_login_pending")) return;
-    // オーバーレイを表示してからページの visibility を戻す（フラッシュ防止）
     setShow(true);
     document.documentElement.style.visibility = "";
 
@@ -23,7 +22,7 @@ export default function LoginTransitionOverlay() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 gap-4">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-950 gap-4">
       <svg
         className="w-12 h-12 text-yellow-400 animate-spin"
         fill="none"
@@ -37,7 +36,7 @@ export default function LoginTransitionOverlay() {
           d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
         />
       </svg>
-      <p className="text-gray-500 dark:text-gray-400 text-sm">ログイン中...</p>
+      <p className="text-gray-400 text-sm">ログイン中...</p>
     </div>
   );
 }

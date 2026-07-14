@@ -84,15 +84,13 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-2xl mx-auto">
-      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-8">設定</h1>
+      <h1 className="text-xl font-bold text-gray-100 mb-8">設定</h1>
 
-      {/* Account section */}
       <section className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
           アカウント
         </h2>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
-          {/* Avatar + user info */}
+        <div className="bg-gray-900 rounded-xl border border-gray-800 divide-y divide-gray-800">
           <div className="flex items-center gap-4 p-4">
             <div className="relative shrink-0">
               {avatarUrl ? (
@@ -117,12 +115,12 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+              <p className="font-medium text-gray-100 truncate">
                 {user?.name || "名前未設定"}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+              <p className="text-sm text-gray-400 truncate">{user?.email}</p>
               {avatarError && (
-                <p className="text-xs text-red-500 mt-1">{avatarError}</p>
+                <p className="text-xs text-red-400 mt-1">{avatarError}</p>
               )}
               <div className="flex gap-2 mt-2">
                 <button
@@ -136,7 +134,7 @@ export default function SettingsPage() {
                   <button
                     onClick={handleAvatarRemove}
                     disabled={uploading}
-                    className="text-xs px-3 py-1 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 rounded-lg transition"
+                    className="text-xs px-3 py-1 border border-gray-700 text-gray-400 hover:bg-gray-800 disabled:opacity-50 rounded-lg transition"
                   >
                     削除
                   </button>
@@ -155,7 +153,7 @@ export default function SettingsPage() {
           <div className="p-4">
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition"
+              className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -167,25 +165,24 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Danger zone */}
       <section className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
           アカウント削除
         </h2>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-red-200 dark:border-red-900 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div className="bg-gray-900 rounded-xl border border-red-900 p-4">
+          <p className="text-sm text-gray-400 mb-4">
             アカウントを削除すると、すべてのデータ（登録サイト・記事・既読状態・お気に入り）が完全に削除されます。この操作は取り消せません。
           </p>
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 text-sm text-red-600 dark:text-red-400 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 transition"
+              className="px-4 py-2 text-sm text-red-400 border border-red-700 rounded-lg hover:bg-red-950 transition"
             >
               アカウントを削除する
             </button>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm font-medium text-red-600 dark:text-red-400">
+              <p className="text-sm font-medium text-red-400">
                 本当に削除しますか？この操作は取り消せません。
               </p>
               <div className="flex gap-3">
@@ -198,7 +195,7 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  className="px-4 py-2 text-sm border border-gray-700 rounded-lg text-gray-400 hover:bg-gray-800 transition"
                 >
                   キャンセル
                 </button>
@@ -208,23 +205,22 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* App info */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
           アプリ情報
         </h2>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+        <div className="bg-gray-900 rounded-xl border border-gray-800 divide-y divide-gray-800">
           <div className="flex items-center justify-between p-4">
-            <span className="text-sm text-gray-700 dark:text-gray-300">アプリ名</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">KuroFeed</span>
+            <span className="text-sm text-gray-300">アプリ名</span>
+            <span className="text-sm font-medium text-gray-100">KuroFeed</span>
           </div>
           <div className="flex items-center justify-between p-4">
-            <span className="text-sm text-gray-700 dark:text-gray-300">バージョン</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">3.00.00</span>
+            <span className="text-sm text-gray-300">バージョン</span>
+            <span className="text-sm font-medium text-gray-100">3.00.00</span>
           </div>
           <div className="flex items-center justify-between p-4">
-            <span className="text-sm text-gray-700 dark:text-gray-300">フレームワーク</span>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Next.js 16</span>
+            <span className="text-sm text-gray-300">フレームワーク</span>
+            <span className="text-sm font-medium text-gray-100">Next.js 16</span>
           </div>
         </div>
       </section>
