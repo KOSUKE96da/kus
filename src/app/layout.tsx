@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
@@ -16,12 +16,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "KuroFeed - RSSフィードアグリゲーター",
   description: "お気に入りのRSSフィードを一箇所で管理するアプリ",
-  themeColor: "#FACC15",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "KuroFeed",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FACC15",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -34,11 +38,6 @@ export default function RootLayout({
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        {/* CSS読み込み前から強制的にダークモードを適用 */}
-        <meta name="color-scheme" content="dark" />
-        <style>{`html,body{background-color:#030712!important;color:#f9fafb!important;color-scheme:dark}`}</style>
-      </head>
       <body className="min-h-full flex flex-col bg-gray-950 text-gray-100">
         <script dangerouslySetInnerHTML={{ __html: `(function(){if(sessionStorage.getItem('kf_login_pending')){document.documentElement.style.visibility='hidden';}})();` }} />
         <script

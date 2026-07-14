@@ -1,7 +1,26 @@
 @import "tailwindcss";
 
+/*
+  Pin every gray CSS variable to its fixed OKLCH value.
+  Tailwind v4 defines these inside @layer theme, so declaring them here
+  (outside any layer) gives them higher priority and prevents any
+  prefers-color-scheme media query inside Tailwind from overriding them.
+*/
 :root {
   color-scheme: dark;
+  forced-color-adjust: none;
+
+  --color-gray-50:  oklch(0.985 0.002 247.839);
+  --color-gray-100: oklch(0.967 0.003 264.542);
+  --color-gray-200: oklch(0.928 0.006 264.531);
+  --color-gray-300: oklch(0.872 0.010 258.338);
+  --color-gray-400: oklch(0.707 0.022 264.436);
+  --color-gray-500: oklch(0.551 0.018 264.364);
+  --color-gray-600: oklch(0.446 0.013 264.436);
+  --color-gray-700: oklch(0.373 0.013 260.031);
+  --color-gray-800: oklch(0.269 0.013 285.805);
+  --color-gray-900: oklch(0.210 0.006 285.885);
+  --color-gray-950: oklch(0.145 0.005 285.885);
 }
 
 html,
