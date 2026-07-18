@@ -120,6 +120,34 @@ export async function POST() {
         });
         siteDebug.new = newItems.length;
 
+        // Backfill thumbnails for existing articles saved without one (e.g.
+        // older ガジェット通信 items parsed before the <image><original> fix).
+        const missingThumb = await prisma.article.findMany({
+          where: { siteId: site.id, thumbnailUrl: null },
+          select: { id: true, url: true },
+        });
+        if (missingThumb.length > 0) {
+          const idByUrl = new Map(missingThumb.map((a) => [a.url, a.id]));
+          const seenBackfill = new Set<string>();
+          const backfills: Promise<unknown>[] = [];
+          for (const item of feedItems) {
+            if (!item.link || seenBackfill.has(item.link)) continue;
+            const id = idByUrl.get(item.link);
+            if (!id) continue;
+            const thumb = extractThumbnailFromRss(item);
+            if (thumb) {
+              seenBackfill.add(item.link);
+              backfills.push(
+                prisma.article.update({ where: { id }, data: { thumbnailUrl: thumb } })
+              );
+            }
+          }
+          if (backfills.length > 0) {
+            await Promise.all(backfills);
+            siteDebug.backfilled = backfills.length;
+          }
+        }
+
         if (newItems.length === 0) { debug.push(siteDebug); return; }
 
         const result = await prisma.article.createMany({
