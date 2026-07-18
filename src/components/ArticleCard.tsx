@@ -24,6 +24,13 @@ interface Props {
   onFavoriteChange?: (id: string, isFavorite: boolean) => void;
 }
 
+// Route remote images through our own origin so ad blockers / network filters
+// can't stop them loading (some feed CDNs like px1img.getnews.jp are blocked
+// in browsers but work in the app).
+function proxiedImage(url: string): string {
+  return `/api/image?url=${encodeURIComponent(url)}`;
+}
+
 export default function ArticleCard({ article, onReadChange, onFavoriteChange }: Props) {
   const [isRead, setIsRead] = useState(article.isRead);
   const [isFavorite, setIsFavorite] = useState(article.isFavorite);
@@ -114,7 +121,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
       {article.thumbnailUrl && (
         <div className="relative h-40 overflow-hidden bg-gray-800">
           <img
-            src={article.thumbnailUrl}
+            src={proxiedImage(article.thumbnailUrl)}
             alt=""
             className={`w-full h-full object-cover transition-all duration-300
               ${isRead && !isFavorite ? "grayscale-[40%] brightness-90" : "group-hover:scale-105"}
