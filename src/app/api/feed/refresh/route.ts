@@ -54,7 +54,16 @@ function extractThumbnailFromRss(item: any): string | null {
   if (item.enclosure?.url && item.enclosure.type?.startsWith("image/")) return item.enclosure.url;
   if (item.mediaContent?.$.url) return item.mediaContent.$.url;
   if (item.mediaThumbnail?.$.url) return item.mediaThumbnail.$.url;
-  if (typeof item.imageTag === "string" && item.imageTag.startsWith("http")) return item.imageTag;
+  // <image> may be a plain URL string, or a nested element such as
+  // <image><original>URL</original></image> (ガジェット通信/getnews.jp), which
+  // rss-parser turns into { original: ["URL"] }.
+  const imageTag = item.imageTag;
+  if (typeof imageTag === "string" && imageTag.startsWith("http")) return imageTag;
+  if (imageTag && typeof imageTag === "object") {
+    const raw = imageTag.original ?? imageTag.url;
+    const val = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof val === "string" && val.startsWith("http")) return val;
+  }
   const html = item["content:encoded"] || item.content || "";
   if (html) {
     const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
