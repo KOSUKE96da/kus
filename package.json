@@ -1,6 +1,6 @@
 {
   "name": "article-aggregator",
-  "version": "5.00.01",
+  "version": "50.00.50",
   "private": true,
   "scripts": {
     "dev": "next dev",
