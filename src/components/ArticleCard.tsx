@@ -123,6 +123,8 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
           <img
             src={proxiedImage(article.thumbnailUrl)}
             alt=""
+            loading="lazy"
+            decoding="async"
             className={`w-full h-full object-cover transition-all duration-300
               ${isRead && !isFavorite ? "grayscale-[40%] brightness-90" : "group-hover:scale-105"}
             `}
@@ -152,6 +154,8 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
             <img
               src={article.faviconUrl}
               alt=""
+              loading="lazy"
+              decoding="async"
               className={`w-4 h-4 rounded ${isRead ? "opacity-60" : ""}`}
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
