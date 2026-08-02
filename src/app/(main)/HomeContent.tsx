@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import ArticleCard, { ArticleData } from "@/components/ArticleCard";
 
 type Filter = "all" | "unread" | "read" | "favorites";
@@ -12,6 +12,12 @@ export default function HomeContent() {
   const [sort, setSort] = useState<Sort>("desc");
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  // Render the list progressively — the full set can be hundreds of cards, so
+  // only mount a slice and grow it as the user scrolls (data is still fetched
+  // in full so search/filter/counts stay accurate).
+  const PAGE = 30;
+  const [visibleCount, setVisibleCount] = useState(PAGE);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const fetchArticles = useCallback(async (silent = false) => {
     // silent = background refresh: keep the current list on screen and merge
@@ -58,6 +64,29 @@ export default function HomeContent() {
           (a.siteName ?? "").toLowerCase().includes(q)
       )
     : allArticles;
+
+  const visibleArticles = displayedArticles.slice(0, visibleCount);
+  const hasMore = visibleCount < displayedArticles.length;
+
+  // Reset the window when the visible set changes (filter/sort/search).
+  useEffect(() => {
+    setVisibleCount(PAGE);
+  }, [filter, sort, search]);
+
+  // Grow the window as the sentinel nears the viewport.
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) setVisibleCount((c) => c + PAGE);
+      },
+      { rootMargin: "800px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, displayedArticles.length]);
 
   const filterButtons: { key: Filter; label: string }[] = [
     { key: "all", label: "すべて" },
@@ -151,16 +180,26 @@ export default function HomeContent() {
           </div>
         )}
         {!loading && displayedArticles.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {displayedArticles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onReadChange={handleReadChange}
-                onFavoriteChange={handleFavoriteChange}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {visibleArticles.map((article) => (
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  onReadChange={handleReadChange}
+                  onFavoriteChange={handleFavoriteChange}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                <svg className="w-6 h-6 text-yellow-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
