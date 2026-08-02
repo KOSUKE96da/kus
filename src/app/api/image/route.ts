@@ -1,10 +1,17 @@
 import { NextRequest } from "next/server";
 
+// Run at the edge (near the viewer) so a JP user proxying a JP image CDN
+// doesn't detour through a US region. Also avoids cold starts and streams
+// the bytes straight through instead of buffering.
+export const runtime = "edge";
+
 const FETCH_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
 };
+
+const MAX_BYTES = 8 * 1024 * 1024;
 
 // Block loopback / private / link-local hosts to limit SSRF exposure.
 function isBlockedHost(hostname: string): boolean {
@@ -53,13 +60,13 @@ export async function GET(request: NextRequest) {
     if (!res.ok || !contentType.startsWith("image/")) {
       return new Response(null, { status: 404 });
     }
-
-    const buffer = Buffer.from(await res.arrayBuffer());
-    if (buffer.byteLength > 8 * 1024 * 1024) {
+    const len = Number(res.headers.get("content-length") || 0);
+    if (len && len > MAX_BYTES) {
       return new Response(null, { status: 413 });
     }
 
-    return new Response(buffer, {
+    // Stream the bytes straight through (no buffering).
+    return new Response(res.body, {
       headers: {
         "Content-Type": contentType,
         // Cache hard at the CDN + browser; feed images don't change.
