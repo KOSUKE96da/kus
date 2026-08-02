@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 
@@ -36,6 +36,10 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
   const [isFavorite, setIsFavorite] = useState(article.isFavorite);
   const [readLoading, setReadLoading] = useState(false);
   const [favLoading, setFavLoading] = useState(false);
+  // Load thumbnails directly from their CDN (native speed); only fall back to
+  // our proxy for images the browser/network blocks (e.g. px1img.getnews.jp).
+  const [thumbFailedDirect, setThumbFailedDirect] = useState(false);
+  useEffect(() => setThumbFailedDirect(false), [article.thumbnailUrl]);
 
   const relativeTime = formatDistanceToNow(new Date(article.publishedAt), {
     addSuffix: true,
@@ -121,7 +125,7 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
       {article.thumbnailUrl && (
         <div className="relative h-40 overflow-hidden bg-gray-800">
           <img
-            src={proxiedImage(article.thumbnailUrl)}
+            src={thumbFailedDirect ? proxiedImage(article.thumbnailUrl) : article.thumbnailUrl}
             alt=""
             loading="lazy"
             decoding="async"
@@ -129,7 +133,11 @@ export default function ArticleCard({ article, onReadChange, onFavoriteChange }:
               ${isRead && !isFavorite ? "grayscale-[40%] brightness-90" : "group-hover:scale-105"}
             `}
             onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
+              if (!thumbFailedDirect) {
+                setThumbFailedDirect(true); // retry blocked image via our proxy
+              } else {
+                (e.target as HTMLImageElement).style.display = "none";
+              }
             }}
           />
           {!isRead && (
