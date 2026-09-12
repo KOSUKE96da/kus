@@ -21,7 +21,6 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
     try {
       const result = await signIn("credentials", {

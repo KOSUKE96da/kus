@@ -1,4 +1,5 @@
 {
+  "regions": ["hnd1"],
   "functions": {
     "src/app/api/feed/refresh/route.ts": {
       "maxDuration": 60
